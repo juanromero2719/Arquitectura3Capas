@@ -1,0 +1,4 @@
+DaoPersistencia\EstudianteDAO.class
+DaoPersistencia\CarreraDAO.class
+DaoPersistencia\FacultadDAO.class
+ConexionPersistencia\ConexionBDPersistencia.class

@@ -1,0 +1,21 @@
+2025-02-22 13:55:53.566394-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "PERSONA" not found (this database is empty); SQL statement:
+INSERT INTO persona (identificacion, nombres, apellidos, edad) VALUES (?, ?, ?, ?) [42104-224]
+2025-02-22 13:55:53.585418-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "PERSONA" not found (this database is empty); SQL statement:
+SELECT * FROM persona WHERE identificacion = ? [42104-224]
+2025-02-22 13:55:53.602038-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "PERSONA" not found (this database is empty); SQL statement:
+UPDATE persona SET nombres = ?, apellidos = ?, edad = ? WHERE identificacion = ? [42104-224]
+2025-02-22 13:55:53.631164-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "PERSONA" not found (this database is empty); SQL statement:
+SELECT * FROM persona WHERE identificacion = ? [42104-224]
+2025-02-22 13:55:53.657891-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "PERSONA" not found (this database is empty); SQL statement:
+SELECT * FROM persona [42104-224]
+2025-02-22 13:55:53.683835-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "PERSONA" not found (this database is empty); SQL statement:
+DELETE FROM persona WHERE identificacion = ? [42104-224]
+2025-02-22 13:55:53.710243-05:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "PERSONA" not found (this database is empty); SQL statement:
+SELECT * FROM persona WHERE identificacion = ? [42104-224]
