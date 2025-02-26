@@ -2,130 +2,124 @@ package DaoPersistencia;
 
 import ConexionPersistencia.ConexionBDPersistencia;
 import DTObject.FacultadDto;
-import ModeloEntidades.Facultad;
 
-import jakarta.persistence.*;
-
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * DAO para la entidad Facultad, utilizando JDBC.
+ * Se asume que la tabla Facultad tiene columnas:
+ * id (PRIMARY KEY autoincrement), nombre (VARCHAR).
+ */
 public class FacultadDAO {
 
-    private static final EntityManagerFactory emf = ConexionBDPersistencia.getEntityManagerFactory();
-
     public void insertarFacultad(FacultadDto facultadDTO) {
-    EntityManager em = emf.createEntityManager();
-    EntityTransaction transaction = em.getTransaction();
+        String sql = "INSERT INTO Facultad (nombre) VALUES (?)";
 
-    try {
-        transaction.begin();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        Facultad facultad = new Facultad();
-        // No asignar el ID para que se genere automáticamente
-        // facultad.setId(facultadDTO.getId());
-        facultad.setNombre(facultadDTO.getNombre());
+            pstmt.setString(1, facultadDTO.getNombre());
 
-        em.persist(facultad);
-        transaction.commit();
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("✅ Facultad insertada correctamente.");
+            } else {
+                System.err.println("❌ Error al insertar facultad: no se insertó ninguna fila.");
+            }
 
-        System.out.println("✅ Facultad insertada correctamente.");
-    } catch (Exception e) {
-        if (transaction.isActive()) {
-            transaction.rollback();
+        } catch (SQLException e) {
+            System.err.println("❌ Error al insertar facultad: " + e.getMessage());
         }
-        System.err.println("❌ Error al insertar facultad: " + e.getMessage());
-    } finally {
-        em.close();
-    }
     }
 
     public List<FacultadDto> obtenerTodasLasFacultades() {
-        EntityManager em = emf.createEntityManager();
-        List<FacultadDto> listaFacultadesDTO;
+        List<FacultadDto> listaFacultades = new ArrayList<>();
+        String sql = "SELECT id, nombre FROM Facultad";
 
-        try {
-            List<Facultad> facultades = em.createQuery("SELECT f FROM Facultad f", Facultad.class).getResultList();
-            listaFacultadesDTO = facultades.stream().map(f -> new FacultadDto(
-                    f.getId(), f.getNombre()
-            )).collect(Collectors.toList());
-        } finally {
-            em.close();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                FacultadDto facultadDTO = new FacultadDto(
+                        rs.getInt("id"),
+                        rs.getString("nombre")
+                );
+                listaFacultades.add(facultadDTO);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al obtener facultades: " + e.getMessage());
         }
 
-        return listaFacultadesDTO;
+        return listaFacultades;
     }
 
     public FacultadDto obtenerFacultadPorId(int id) {
-        EntityManager em = emf.createEntityManager();
         FacultadDto facultadDTO = null;
+        String sql = "SELECT id, nombre FROM Facultad WHERE id = ?";
 
-        try {
-            Facultad facultad = em.find(Facultad.class, id);
-            if (facultad != null) {
-                facultadDTO = new FacultadDto(
-                        facultad.getId(), facultad.getNombre()
-                );
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    facultadDTO = new FacultadDto(
+                            rs.getInt("id"),
+                            rs.getString("nombre")
+                    );
+                }
             }
-        } finally {
-            em.close();
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al obtener facultad por ID: " + e.getMessage());
         }
 
         return facultadDTO;
     }
 
     public void actualizarFacultad(FacultadDto facultadDTO) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
+        String sql = "UPDATE Facultad SET nombre = ? WHERE id = ?";
 
-        try {
-            transaction.begin();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            Facultad facultad = em.find(Facultad.class, facultadDTO.getId());
-            if (facultad == null) {
+            pstmt.setString(1, facultadDTO.getNombre());
+            pstmt.setInt(2, facultadDTO.getId());
+
+            int rowsUpdated = pstmt.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("✅ Facultad actualizada correctamente.");
+            } else {
                 System.err.println("❌ No se encontró la facultad con ID " + facultadDTO.getId());
-                return;
             }
 
-            facultad.setNombre(facultadDTO.getNombre());
-
-            em.merge(facultad);
-            transaction.commit();
-
-            System.out.println("✅ Facultad actualizada correctamente.");
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (SQLException e) {
             System.err.println("❌ Error al actualizar facultad: " + e.getMessage());
-        } finally {
-            em.close();
         }
     }
 
     public void eliminarFacultad(int id) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
+        String sql = "DELETE FROM Facultad WHERE id = ?";
 
-        try {
-            transaction.begin();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            Facultad facultad = em.find(Facultad.class, id);
-            if (facultad == null) {
+            pstmt.setInt(1, id);
+
+            int rowsDeleted = pstmt.executeUpdate();
+            if (rowsDeleted > 0) {
+                System.out.println("✅ Facultad eliminada correctamente.");
+            } else {
                 System.err.println("❌ No se encontró la facultad con ID " + id);
-                return;
             }
 
-            em.remove(facultad);
-            transaction.commit();
-
-            System.out.println("✅ Facultad eliminada correctamente.");
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (SQLException e) {
             System.err.println("❌ Error al eliminar facultad: " + e.getMessage());
-        } finally {
-            em.close();
         }
     }
 }

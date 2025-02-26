@@ -2,148 +2,137 @@ package DaoPersistencia;
 
 import ConexionPersistencia.ConexionBDPersistencia;
 import DTObject.EstudianteDto;
-import ModeloEntidades.Carrera;
-import ModeloEntidades.Estudiante;
 
-import jakarta.persistence.*;
-
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * DAO para la entidad Estudiante, utilizando JDBC.
+ * Se asume que la tabla Estudiante tiene columnas:
+ * identificacion (PRIMARY KEY), nombres, apellidos, edad, carrera_id (FK a Carrera).
+ */
 public class EstudianteDAO {
-    private static final EntityManagerFactory emf = ConexionBDPersistencia.getEntityManagerFactory();
 
     public void insertarEstudiante(EstudianteDto estudianteDTO) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
+        String sql = "INSERT INTO Estudiante (identificacion, nombres, apellidos, edad, carrera_id) VALUES (?, ?, ?, ?, ?)";
 
-        try {
-            transaction.begin();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            Carrera carrera = em.find(Carrera.class, estudianteDTO.getCarreraId());
-            if (carrera == null) {
-                System.err.println("❌ No existe la carrera con ID " + estudianteDTO.getCarreraId());
-                return;
+            pstmt.setLong(1, estudianteDTO.getIdentificacion());
+            pstmt.setString(2, estudianteDTO.getNombres());
+            pstmt.setString(3, estudianteDTO.getApellidos());
+            pstmt.setInt(4, estudianteDTO.getEdad());
+            pstmt.setInt(5, estudianteDTO.getCarreraId());
+
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("✅ Estudiante insertado correctamente.");
+            } else {
+                System.err.println("❌ Error al insertar estudiante: no se insertó ninguna fila.");
             }
 
-            Estudiante estudiante = new Estudiante();
-            estudiante.setIdentificacion(estudianteDTO.getIdentificacion());
-            estudiante.setNombres(estudianteDTO.getNombres());
-            estudiante.setApellidos(estudianteDTO.getApellidos());
-            estudiante.setEdad(estudianteDTO.getEdad());
-            estudiante.setCarrera(carrera);
-
-            em.persist(estudiante);
-            transaction.commit();
-
-            System.out.println("✅ Estudiante insertado correctamente.");
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (SQLException e) {
             System.err.println("❌ Error al insertar estudiante: " + e.getMessage());
-        } finally {
-            em.close();
         }
     }
 
     public List<EstudianteDto> obtenerTodosLosEstudiantes() {
-        EntityManager em = emf.createEntityManager();
-        List<EstudianteDto> listaEstudiantesDTO;
+        List<EstudianteDto> listaEstudiantes = new ArrayList<>();
+        String sql = "SELECT identificacion, nombres, apellidos, edad, carrera_id FROM Estudiante";
 
-        try {
-            List<Estudiante> estudiantes = em.createQuery("SELECT e FROM Estudiante e", Estudiante.class).getResultList();
-            listaEstudiantesDTO = estudiantes.stream().map(e -> new EstudianteDto(
-                    e.getIdentificacion(), e.getNombres(), e.getApellidos(), e.getEdad(), e.getCarrera().getId()
-            )).collect(Collectors.toList());
-        } finally {
-            em.close();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                EstudianteDto estudianteDTO = new EstudianteDto(
+                        rs.getLong("identificacion"),
+                        rs.getString("nombres"),
+                        rs.getString("apellidos"),
+                        rs.getInt("edad"),
+                        rs.getInt("carrera_id")
+                );
+                listaEstudiantes.add(estudianteDTO);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al obtener estudiantes: " + e.getMessage());
         }
 
-        return listaEstudiantesDTO;
+        return listaEstudiantes;
     }
 
     public EstudianteDto obtenerEstudiantePorId(Long identificacion) {
-        EntityManager em = emf.createEntityManager();
         EstudianteDto estudianteDTO = null;
+        String sql = "SELECT identificacion, nombres, apellidos, edad, carrera_id FROM Estudiante WHERE identificacion = ?";
 
-        try {
-            Estudiante estudiante = em.find(Estudiante.class, identificacion);
-            if (estudiante != null) {
-                estudianteDTO = new EstudianteDto(
-                        estudiante.getIdentificacion(), estudiante.getNombres(), estudiante.getApellidos(),
-                        estudiante.getEdad(), estudiante.getCarrera().getId()
-                );
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, identificacion);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    estudianteDTO = new EstudianteDto(
+                            rs.getLong("identificacion"),
+                            rs.getString("nombres"),
+                            rs.getString("apellidos"),
+                            rs.getInt("edad"),
+                            rs.getInt("carrera_id")
+                    );
+                }
             }
-        } finally {
-            em.close();
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al obtener estudiante: " + e.getMessage());
         }
 
         return estudianteDTO;
     }
 
     public void actualizarEstudiante(EstudianteDto estudianteDTO) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
+        String sql = "UPDATE Estudiante SET nombres = ?, apellidos = ?, edad = ?, carrera_id = ? WHERE identificacion = ?";
 
-        try {
-            transaction.begin();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            Estudiante estudiante = em.find(Estudiante.class, estudianteDTO.getIdentificacion());
-            if (estudiante == null) {
+            pstmt.setString(1, estudianteDTO.getNombres());
+            pstmt.setString(2, estudianteDTO.getApellidos());
+            pstmt.setInt(3, estudianteDTO.getEdad());
+            pstmt.setInt(4, estudianteDTO.getCarreraId());
+            pstmt.setLong(5, estudianteDTO.getIdentificacion());
+
+            int rowsUpdated = pstmt.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("✅ Estudiante actualizado correctamente.");
+            } else {
                 System.err.println("❌ No se encontró el estudiante con ID " + estudianteDTO.getIdentificacion());
-                return;
             }
 
-            estudiante.setNombres(estudianteDTO.getNombres());
-            estudiante.setApellidos(estudianteDTO.getApellidos());
-            estudiante.setEdad(estudianteDTO.getEdad());
-
-            Carrera nuevaCarrera = em.find(Carrera.class, estudianteDTO.getCarreraId());
-            if (nuevaCarrera == null) {
-                System.err.println("❌ No existe la carrera con ID " + estudianteDTO.getCarreraId());
-                return;
-            }
-            estudiante.setCarrera(nuevaCarrera);
-
-            em.merge(estudiante);
-            transaction.commit();
-
-            System.out.println("✅ Estudiante actualizado correctamente.");
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (SQLException e) {
             System.err.println("❌ Error al actualizar estudiante: " + e.getMessage());
-        } finally {
-            em.close();
         }
     }
 
     public void eliminarEstudiante(Long identificacion) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
+        String sql = "DELETE FROM Estudiante WHERE identificacion = ?";
 
-        try {
-            transaction.begin();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            Estudiante estudiante = em.find(Estudiante.class, identificacion);
-            if (estudiante == null) {
+            pstmt.setLong(1, identificacion);
+
+            int rowsDeleted = pstmt.executeUpdate();
+            if (rowsDeleted > 0) {
+                System.out.println("✅ Estudiante eliminado correctamente.");
+            } else {
                 System.err.println("❌ No se encontró el estudiante con ID " + identificacion);
-                return;
             }
 
-            em.remove(estudiante);
-            transaction.commit();
-
-            System.out.println("✅ Estudiante eliminado correctamente.");
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (SQLException e) {
             System.err.println("❌ Error al eliminar estudiante: " + e.getMessage());
-        } finally {
-            em.close();
         }
     }
 }

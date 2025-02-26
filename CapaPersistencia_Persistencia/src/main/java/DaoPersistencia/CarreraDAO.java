@@ -2,143 +2,127 @@ package DaoPersistencia;
 
 import ConexionPersistencia.ConexionBDPersistencia;
 import DTObject.CarreraDto;
-import ModeloEntidades.Carrera;
-import ModeloEntidades.Facultad;
-import jakarta.persistence.*;
 
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * DAO para la entidad Carrera, utilizando JDBC.
+ * Cada método ilustra el uso de PreparedStatement y manejo de recursos con try-with-resources.
+ */
 public class CarreraDAO {
-    private static final EntityManagerFactory emf = ConexionBDPersistencia.getEntityManagerFactory();
 
     public void insertarCarrera(CarreraDto carreraDTO) {
-    EntityManager em = emf.createEntityManager();
-    EntityTransaction transaction = em.getTransaction();
+        String sql = "INSERT INTO Carrera (nombre, facultad_id) VALUES (?, ?)";
+        
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-    try {
-        transaction.begin();
+            pstmt.setString(1, carreraDTO.getNombre());
+            pstmt.setInt(2, carreraDTO.getFacultadId());
 
-        Facultad facultad = em.find(Facultad.class, carreraDTO.getFacultadId());
-        if (facultad == null) {
-            System.err.println("❌ No existe la facultad con ID " + carreraDTO.getFacultadId());
-            return;
+            int rowsInserted = pstmt.executeUpdate();
+            if (rowsInserted > 0) {
+                System.out.println("✅ Carrera insertada correctamente.");
+            } else {
+                System.err.println("❌ Error al insertar carrera: no se insertó ninguna fila.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al insertar carrera: " + e.getMessage());
         }
-
-        Carrera carrera = new Carrera();
-        // No se asigna el ID porque es autoincremental
-        // carrera.setId(carreraDTO.getId());
-        carrera.setNombre(carreraDTO.getNombre());
-        carrera.setFacultad(facultad);
-
-        em.persist(carrera); // Insertar en la base de datos
-        transaction.commit();
-
-        System.out.println("✅ Carrera insertada correctamente.");
-    } catch (Exception e) {
-        if (transaction.isActive()) {
-            transaction.rollback();
-        }
-        System.err.println("❌ Error al insertar carrera: " + e.getMessage());
-    } finally {
-        em.close();
-    }
     }
 
     public List<CarreraDto> obtenerTodasLasCarreras() {
-        EntityManager em = emf.createEntityManager();
-        List<CarreraDto> listaCarrerasDTO;
+        List<CarreraDto> listaCarreras = new ArrayList<>();
+        String sql = "SELECT id, nombre, facultad_id FROM Carrera";
 
-        try {
-            List<Carrera> carreras = em.createQuery("SELECT c FROM Carrera c", Carrera.class).getResultList();
-            listaCarrerasDTO = carreras.stream().map(c -> new CarreraDto(
-                    c.getId(), c.getNombre(), c.getFacultad().getId()
-            )).collect(Collectors.toList());
-        } finally {
-            em.close();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                CarreraDto carreraDTO = new CarreraDto(
+                        rs.getInt("id"),
+                        rs.getString("nombre"),
+                        rs.getInt("facultad_id")
+                );
+                listaCarreras.add(carreraDTO);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al obtener carreras: " + e.getMessage());
         }
 
-        return listaCarrerasDTO;
+        return listaCarreras;
     }
 
     public CarreraDto obtenerCarreraPorId(int id) {
-        EntityManager em = emf.createEntityManager();
         CarreraDto carreraDTO = null;
+        String sql = "SELECT id, nombre, facultad_id FROM Carrera WHERE id = ?";
 
-        try {
-            Carrera carrera = em.find(Carrera.class, id);
-            if (carrera != null) {
-                carreraDTO = new CarreraDto(
-                        carrera.getId(), carrera.getNombre(), carrera.getFacultad().getId()
-                );
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    carreraDTO = new CarreraDto(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            rs.getInt("facultad_id")
+                    );
+                }
             }
-        } finally {
-            em.close();
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error al obtener carrera por ID: " + e.getMessage());
         }
 
         return carreraDTO;
     }
 
     public void actualizarCarrera(CarreraDto carreraDTO) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
+        String sql = "UPDATE Carrera SET nombre = ?, facultad_id = ? WHERE id = ?";
 
-        try {
-            transaction.begin();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            Carrera carrera = em.find(Carrera.class, carreraDTO.getId());
-            if (carrera == null) {
+            pstmt.setString(1, carreraDTO.getNombre());
+            pstmt.setInt(2, carreraDTO.getFacultadId());
+            pstmt.setInt(3, carreraDTO.getId());
+
+            int rowsUpdated = pstmt.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("✅ Carrera actualizada correctamente.");
+            } else {
                 System.err.println("❌ No se encontró la carrera con ID " + carreraDTO.getId());
-                return;
             }
 
-            carrera.setNombre(carreraDTO.getNombre());
-
-            Facultad nuevaFacultad = em.find(Facultad.class, carreraDTO.getFacultadId());
-            if (nuevaFacultad == null) {
-                System.err.println("❌ No existe la facultad con ID " + carreraDTO.getFacultadId());
-                return;
-            }
-            carrera.setFacultad(nuevaFacultad);
-
-            em.merge(carrera);
-            transaction.commit();
-
-            System.out.println("✅ Carrera actualizada correctamente.");
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (SQLException e) {
             System.err.println("❌ Error al actualizar carrera: " + e.getMessage());
-        } finally {
-            em.close();
         }
     }
 
     public void eliminarCarrera(int id) {
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction transaction = em.getTransaction();
+        String sql = "DELETE FROM Carrera WHERE id = ?";
 
-        try {
-            transaction.begin();
+        try (Connection conn = ConexionBDPersistencia.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            Carrera carrera = em.find(Carrera.class, id);
-            if (carrera == null) {
+            pstmt.setInt(1, id);
+
+            int rowsDeleted = pstmt.executeUpdate();
+            if (rowsDeleted > 0) {
+                System.out.println("✅ Carrera eliminada correctamente.");
+            } else {
                 System.err.println("❌ No se encontró la carrera con ID " + id);
-                return;
             }
 
-            em.remove(carrera);
-            transaction.commit();
-
-            System.out.println("✅ Carrera eliminada correctamente.");
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+        } catch (SQLException e) {
             System.err.println("❌ Error al eliminar carrera: " + e.getMessage());
-        } finally {
-            em.close();
         }
     }
 }

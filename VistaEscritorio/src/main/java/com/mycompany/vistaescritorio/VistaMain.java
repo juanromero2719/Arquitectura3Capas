@@ -30,15 +30,20 @@ public class VistaMain extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
+        btnUniversidad = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         BtnSistemaClientes = new javax.swing.JButton();
         btnGestorDocumentos = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButton1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
-        jButton1.setText("Universidad");
+        btnUniversidad.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
+        btnUniversidad.setText("Universidad");
+        btnUniversidad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUniversidadActionPerformed(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Verdana", 0, 14)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -68,7 +73,7 @@ public class VistaMain extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnUniversidad, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(BtnSistemaClientes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnGestorDocumentos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -80,7 +85,7 @@ public class VistaMain extends javax.swing.JFrame {
                 .addGap(29, 29, 29)
                 .addComponent(jLabel1)
                 .addGap(27, 27, 27)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnUniversidad, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(BtnSistemaClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -125,6 +130,23 @@ public class VistaMain extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_BtnSistemaClientesActionPerformed
 
+    private void btnUniversidadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUniversidadActionPerformed
+          // 1. Crea un nuevo JFrame
+        JFrame frame = new JFrame("Gestor Universidad");
+
+        // 2. Ajusta su contenido para que sea tu JPanel
+        frame.setContentPane(new VistaUniversidad());
+
+        // 3. Opcional: Ajusta comportamiento de cierre, tamaño, posición
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
+        frame.pack();
+        frame.setLocationRelativeTo(null); // Para centrar la ventana
+
+        // 4. Haz visible la nueva ventana
+        frame.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnUniversidadActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -163,7 +185,7 @@ public class VistaMain extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton BtnSistemaClientes;
     private javax.swing.JButton btnGestorDocumentos;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btnUniversidad;
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 }

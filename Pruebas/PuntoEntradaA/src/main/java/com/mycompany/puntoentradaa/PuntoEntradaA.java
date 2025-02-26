@@ -162,7 +162,7 @@ public class PuntoEntradaA {
 
         } finally {
             // IMPORTANTE: cerrar el EntityManagerFactory para liberar recursos
-            ConexionBDPersistencia.closeEntityManagerFactory();
+            System.out.println("cerrando");
         }
     }
 }
