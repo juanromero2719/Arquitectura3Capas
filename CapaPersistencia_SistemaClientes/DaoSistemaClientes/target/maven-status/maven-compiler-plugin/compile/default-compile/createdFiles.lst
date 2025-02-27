@@ -1,2 +1,4 @@
 ConexionSistemaClientes\ConexionBDSistemaClientes.class
-DaoSistemaClientes\PersonaDAO.class
+DaoSistemaClientes\ClaseADao.class
+DaoSistemaClientes\ClaseBDao.class
+DaoSistemaClientes\ClaseCDao.class

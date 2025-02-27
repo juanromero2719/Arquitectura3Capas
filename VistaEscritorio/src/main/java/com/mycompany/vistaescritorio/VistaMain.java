@@ -118,7 +118,7 @@ public class VistaMain extends javax.swing.JFrame {
         JFrame frame = new JFrame("Sistema de clientes");
 
         // 2. Ajusta su contenido para que sea tu JPanel
-        frame.setContentPane(new VistaCrudSistemaClientes());
+        frame.setContentPane(new VistaSistemaClientes());
 
         // 3. Opcional: Ajusta comportamiento de cierre, tamaño, posición
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 

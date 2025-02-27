@@ -1,12 +1,12 @@
 package com.mycompany.pruebaentradad;
 
 import Controlador.Controlador;
-import DTObject.PersonaDto;
 import DTObject.CarreraDto;
 import DTObject.EstudianteDto;
 import DTObject.FacultadDto;
 import Fachada.Fachada;
 import FabricaGestorDocumentos.DocumentoFabrica;
+import Fachada.SubsistemaInfoDto;
 import Interfaces.Documento;
 import java.util.List;
 
@@ -17,31 +17,6 @@ public class PruebaEntradaD {
 
         // 1. Crear instancia de Controlador con la Fachada
         Controlador controlador = new Controlador(new Fachada());
-
-        // ============= PRUEBAS SOBRE PERSONA =================
-        System.out.println("➡️  PRUEBAS PARA PERSONA\n");
-
-        // 1. Guardar una persona
-        PersonaDto persona = new PersonaDto(1001.0, "Juan", "Perez", 25);
-        controlador.guardarPersona(persona);
-
-        // 2. Obtener una persona por ID
-        PersonaDto personaObtenida = controlador.obtenerPersonaPorId(1001.0);
-        System.out.println("Persona obtenida: " + personaObtenida);
-
-        // 3. Actualizar la persona
-        personaObtenida.setNombres("Juan Carlos");
-        personaObtenida.setEdad(26);
-        controlador.actualizarPersona(personaObtenida);
-
-        // 4. Listar todas las personas
-        List<PersonaDto> listaPersonas = controlador.obtenerTodasPersonas();
-        System.out.println("Lista de todas las personas:");
-        listaPersonas.forEach(System.out::println);
-
-        // 5. Eliminar la persona
-        controlador.eliminarPersona(1001.0);
-        System.out.println("Persona con ID 1001 eliminada.\n");
 
         // ============= PRUEBAS SOBRE DOCUMENTOS =================
         System.out.println("➡️  PRUEBAS PARA DOCUMENTO\n");
@@ -155,7 +130,31 @@ public class PruebaEntradaD {
             System.out.println("Facultad eliminada. Nueva lista de facultades:");
             controlador.obtenerFacultades().forEach(System.out::println);
         }
-
+        
+        // ============= PRUEBAS SOBRE SUBSISTEMAS =================
+        System.out.println("\n➡️  PRUEBAS PARA SUBSISTEMAS\n");
+        
+        // 24. Enviar información a subsistemas
+        String resultadoEnvio = controlador.enviarInformacionSubSistemas(200, "Juan", "Gomez", "destino@correo.com", "Mensaje de prueba para subsistemas.");
+        System.out.println("Resultado del envío a subsistemas:");
+        System.out.println(resultadoEnvio);
+        
+        // 25. Obtener información de subsistemas (tres listas agrupadas en el DTO SubsistemasInfo)
+        SubsistemaInfoDto infoSubsistemas = controlador.obtenerInformacionSubsistemas();
+        System.out.println("\nInformación obtenida de subsistemas:");
+        
+        System.out.println("\n[ClaseA]");
+        infoSubsistemas.getListaA().forEach(a -> 
+                System.out.println("ID: " + a.getId() + ", Nombres: " + a.getNombres() + ", Apellidos: " + a.getApellidos()));
+        
+        System.out.println("\n[ClaseB]");
+        infoSubsistemas.getListaB().forEach(b -> 
+                System.out.println(b.mensajeEnviado()));
+        
+        System.out.println("\n[ClaseC]");
+        infoSubsistemas.getListaC().forEach(c -> 
+                System.out.println("Texto: " + c.getTexto()));
+        
         System.out.println("\n🔸 Fin de las pruebas del Controlador 🔸");
     }
 }

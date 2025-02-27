@@ -5,17 +5,14 @@
 package Fachada;
 
 
-import DTObject.PersonaDto;
 import FabricaGestorDocumentos.DocumentoFabrica;
 import Interfaces.Documento;
-import java.util.List;
+
 
 /**
  *
  * @author juanr
  */
-
-
 
 public interface FachadaInterface {
     
@@ -25,14 +22,8 @@ public interface FachadaInterface {
     
     String imprimirDocumento(Documento documento);
     
-    PersonaDto obtenerPersonaPorId(Double id);
+    String enviarInformacionSubSistemas( double id, String nombres, String apellidos, String email_destino, String texto_mensaje);
     
-    void guardarPersona(PersonaDto personaDTO);
-    
-    void actualizarPersona(PersonaDto personaDTO);
-    
-    void eliminarPersona(Double id);
-    
-    List<PersonaDto> obtenerTodasPersonas();
+    SubsistemaInfoDto informacionEnviadaSubsistemas();
     
 }

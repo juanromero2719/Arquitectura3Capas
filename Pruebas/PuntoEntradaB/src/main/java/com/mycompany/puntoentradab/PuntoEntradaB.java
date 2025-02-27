@@ -1,64 +1,69 @@
 package com.mycompany.puntoentradab;
 
-import DTObject.PersonaDto;
-import DaoSistemaClientes.PersonaDAO;
-import FabricaSistemaClientes.FabricaPersonaDAO;
-
+import ModeloSistemaClientes.ClaseA;
+import ModeloSistemaClientes.ClaseB;
+import ModeloSistemaClientes.ClaseC;
+import DaoSistemaClientes.ClaseADao;
+import DaoSistemaClientes.ClaseBDao;
+import DaoSistemaClientes.ClaseCDao;
+import FabricaSistemaClientes.FabricaSistemaClientes;
 import java.util.List;
 
 public class PuntoEntradaB {
-
+    
     public static void main(String[] args) {
-        System.out.println("🔹 Iniciando pruebas del Sistema de Gestión de Personas 🔹");
 
-        // Obtener una instancia de la fábrica de PersonaDAO
-        FabricaPersonaDAO fabrica = FabricaPersonaDAO.getInstancia();
-        PersonaDAO personaDAO = fabrica.obtenerPersonaDAO();
+        // Crear la fábrica de DAOs
+        FabricaSistemaClientes fabricaSistemaClientes = new FabricaSistemaClientes();
 
-        // 1️⃣ Crear una nueva persona
-        PersonaDto nuevaPersona = new PersonaDto(1001.0, "Juan", "Ramirez", 30);
-        personaDAO.guardarPersona(nuevaPersona);
+        // Obtener los DAOs
+        ClaseADao claseADAO = fabricaSistemaClientes.getClaseADAO();
+        ClaseBDao claseBDAO = fabricaSistemaClientes.getClaseBDAO();
+        ClaseCDao claseCDAO = fabricaSistemaClientes.getClaseCDAO();
 
-        // 2️⃣ Obtener persona por ID
-        System.out.println("\n🔍 Buscando persona con ID 1001...");
-        PersonaDto personaRecuperada = personaDAO.obtenerPorId(1001.0);
-        if (personaRecuperada != null) {
-            System.out.println("✅ Persona encontrada: " + personaRecuperada);
-        } else {
-            System.out.println("❌ No se encontró la persona.");
+        // -------------------------------
+        // 🔹 Insertar datos en ClaseA
+        // -------------------------------
+        ClaseA persona = new ClaseA();
+        persona.setId(1);
+        persona.setNombres("Juan");
+        persona.setApellidos("Pérez");
+
+        claseADAO.insertar(persona);
+        System.out.println("✅ Se insertó un registro en ClaseA.");
+
+        // -------------------------------
+        // 🔹 Insertar datos en ClaseB
+        // -------------------------------
+        ClaseB mensaje = new ClaseB("cliente@correo.com", "Este es un mensaje de prueba.");
+        claseBDAO.insertar(mensaje);
+        System.out.println("✅ Se insertó un registro en ClaseB.");
+
+        // -------------------------------
+        // 🔹 Insertar datos en ClaseC
+        // -------------------------------
+        ClaseC configuracion = new ClaseC("Configuración inicial del sistema.");
+        claseCDAO.insertar(configuracion);
+        System.out.println("✅ Se insertó un registro en ClaseC.");
+
+        // Recuperar y mostrar los registros en consola
+        System.out.println("\n--- Registros en ClaseA ---");
+        List<ClaseA> listaA = claseADAO.obtenerTodos();
+        for (ClaseA a : listaA) {
+            System.out.println("ID: " + a.getId() + ", Nombres: " + a.getNombres() + ", Apellidos: " + a.getApellidos());
         }
 
-        // 3️⃣ Actualizar datos de la persona
-        System.out.println("\n✏️ Actualizando persona con ID 1001...");
-        nuevaPersona.setNombres("Juan Carlos");
-        nuevaPersona.setEdad(35);
-        personaDAO.actualizarPersona(nuevaPersona);
-
-        // 4️⃣ Obtener todas las personas
-        System.out.println("\n📋 Listando todas las personas registradas:");
-        List<PersonaDto> listaPersonas = personaDAO.obtenerTodas();
-        if (!listaPersonas.isEmpty()) {
-            listaPersonas.forEach(System.out::println);
-        } else {
-            System.out.println("⚠ No hay personas registradas.");
+        System.out.println("\n--- Registros en ClaseB ---");
+        List<ClaseB> listaB = claseBDAO.obtenerTodos();
+        for (ClaseB b : listaB) {
+            // Si la clase ClaseB no cuenta con getters, podemos utilizar el método mensajeEnviado() para mostrar la información.
+            System.out.println(b.mensajeEnviado());
         }
 
-        // 5️⃣ Eliminar persona por ID
-        System.out.println("\n🗑 Eliminando persona con ID 1001...");
-        personaDAO.eliminarPersona(1001.0);
-
-        // 6️⃣ Intentar buscar nuevamente la persona eliminada
-        System.out.println("\n🔍 Verificando eliminación de la persona...");
-        PersonaDto personaEliminada = personaDAO.obtenerPorId(1001.0);
-        if (personaEliminada == null) {
-            System.out.println("✅ La persona fue eliminada correctamente.");
-        } else {
-            System.out.println("❌ La persona aún existe en la base de datos.");
+        System.out.println("\n--- Registros en ClaseC ---");
+        List<ClaseC> listaC = claseCDAO.obtenerTodos();
+        for (ClaseC c : listaC) {
+            System.out.println("Texto: " + c.getTexto());
         }
-
-        // 7️⃣ Cerrar la conexión con la base de datos
-        ConexionSistemaClientes.ConexionBDSistemaClientes.cerrarEntityManagerFactory();
-
-        System.out.println("\n🏁 🔹 Fin de pruebas del Sistema de Gestión de Personas 🔹");
     }
 }

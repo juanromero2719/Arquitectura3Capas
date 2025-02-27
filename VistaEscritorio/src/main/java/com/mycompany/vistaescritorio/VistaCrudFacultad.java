@@ -6,7 +6,6 @@ package com.mycompany.vistaescritorio;
 
 import Controlador.Controlador;
 import DTObject.FacultadDto;
-import DTObject.PersonaDto;
 import Fachada.Fachada;
 import java.util.List;
 import javax.swing.JFrame;

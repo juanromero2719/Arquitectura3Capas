@@ -8,12 +8,12 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>Fachada</artifactId>
+            <artifactId>LogicaNegocio</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>LogicaNegocio</artifactId>
+            <artifactId>Fachada</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -1,22 +1,21 @@
 package Fachada;
 
 
-import DTObject.PersonaDto;
-import DaoSistemaClientes.PersonaDAO;
+
+import DaoSistemaClientes.*;
 import FabricaGestorDocumentos.DocumentoBuilder;
 import FabricaGestorDocumentos.DocumentoFabrica;
-import FabricaSistemaClientes.FabricaPersonaDAO;
+import FabricaSistemaClientes.FabricaSistemaClientes;
 import Interfaces.Documento;
+import ModeloSistemaClientes.ClaseA;
+import ModeloSistemaClientes.ClaseB;
+import ModeloSistemaClientes.ClaseC;
 import java.util.List;
+
 
 public class Fachada implements FachadaInterface {
 
-    private PersonaDAO personaDAO;
-    
-    public Fachada() {
-        personaDAO = FabricaPersonaDAO.getInstancia().obtenerPersonaDAO();
-    }
-    
+   
     @Override
     public Documento crearDocumento(DocumentoFabrica.TipoDocumento tipo, String contenido) {
         return new DocumentoBuilder()
@@ -36,30 +35,49 @@ public class Fachada implements FachadaInterface {
         String textoCompleto = documento.imprimir();
         return textoCompleto;
     }
+
+    @Override
+    public String enviarInformacionSubSistemas(double id, String nombres, String apellidos, String email_destino, String texto_mensaje) {
+
+        FabricaSistemaClientes fabrica = new FabricaSistemaClientes();
+        ClaseADao claseADAO = fabrica.getClaseADAO();
+        ClaseBDao claseBDao = fabrica.getClaseBDAO();
+        ClaseCDao claseCDao = fabrica.getClaseCDAO();
+        
+        ClaseA objetoA = new ClaseA();
+        objetoA.setId(id);
+        objetoA.setNombres(nombres);
+        objetoA.setApellidos(apellidos);
+        objetoA.cargarInformacionTerceros();
+        
+        ClaseB objetoB = new ClaseB(email_destino, texto_mensaje);
+        objetoB.mensajeEnviadoFinal();
+        
+        ClaseC objetoC = new ClaseC(id + ";" + "nombres" + ";" + "apellidos "+ "\n");
+        
+        claseADAO.insertar(objetoA);
+        claseBDao.insertar(objetoB);
+        claseCDao.insertar(objetoC);
+        objetoC.procesarInformacion();
+        
+        return "Información enviada a subsistemas exitosamente.";
+    }
+
+    @Override
+    public SubsistemaInfoDto informacionEnviadaSubsistemas() {
+        
+        FabricaSistemaClientes fabrica = new FabricaSistemaClientes();
+        ClaseADao claseADAO = fabrica.getClaseADAO();
+        ClaseBDao claseBDao = fabrica.getClaseBDAO();
+        ClaseCDao claseCDao = fabrica.getClaseCDAO();
+        
+        List<ClaseA> listaA = claseADAO.obtenerTodos();
+        List<ClaseB> listaB = claseBDao.obtenerTodos();
+        List<ClaseC> listaC = claseCDao.obtenerTodos();
+        
+        return new SubsistemaInfoDto(listaA, listaB, listaC);
+    }
     
-    @Override
-    public PersonaDto obtenerPersonaPorId(Double id) {
-        return personaDAO.obtenerPorId(id);
-    }
 
-    @Override
-    public void guardarPersona(PersonaDto personaDTO) {
-        personaDAO.guardarPersona(personaDTO);
-    }
-
-    @Override
-    public void actualizarPersona(PersonaDto personaDTO) {
-        personaDAO.actualizarPersona(personaDTO);
-    }
-
-    @Override
-    public void eliminarPersona(Double id) {
-        personaDAO.eliminarPersona(id);
-    }
-
-    @Override
-    public List<PersonaDto> obtenerTodasPersonas() {
-        return personaDAO.obtenerTodas();
-    }
-    
+   
 }

@@ -1,16 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Controlador;
 
-import DTObject.PersonaDto;
 import DTObject.CarreraDto;
 import DTObject.EstudianteDto;
 import DTObject.FacultadDto;
 
 import FabricaGestorDocumentos.DocumentoFabrica;
 import Fachada.FachadaInterface;
+import Fachada.SubsistemaInfoDto; 
 import Interfaces.Documento;
 
 import Logica.CarreraService;
@@ -49,26 +45,6 @@ public class Controlador {
         return textoCompleto;
     }
     
-    public PersonaDto obtenerPersonaPorId(Double id) {
-        return fachada.obtenerPersonaPorId(id);
-    }
-
-    public void guardarPersona(PersonaDto personaDTO) {
-        fachada.guardarPersona(personaDTO);
-    }
-
-    public void actualizarPersona(PersonaDto personaDTO) {
-        fachada.actualizarPersona(personaDTO);
-    }
-
-    public void eliminarPersona(Double id) {
-        fachada.eliminarPersona(id);
-    }
-
-    public List<PersonaDto> obtenerTodasPersonas() {
-        return fachada.obtenerTodasPersonas();
-    }
-   
     // -------------------------------------------------------
     // Nuevos métodos para CarreraService
     // -------------------------------------------------------
@@ -139,5 +115,17 @@ public class Controlador {
 
     public FacultadDto obtenerFacultadPorId(int id) {
         return facultadService.obtenerFacultadPorId(id);
+    }
+    
+    // -------------------------------------------------------
+    // Nuevos métodos para Subsistemas
+    // -------------------------------------------------------
+    
+    public String enviarInformacionSubSistemas(double id, String nombres, String apellidos, String email_destino, String texto_mensaje) {
+        return fachada.enviarInformacionSubSistemas(id, nombres, apellidos, email_destino, texto_mensaje);
+    }
+    
+    public SubsistemaInfoDto obtenerInformacionSubsistemas() {
+        return fachada.informacionEnviadaSubsistemas();
     }
 }
