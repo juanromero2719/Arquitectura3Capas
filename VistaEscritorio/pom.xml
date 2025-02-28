@@ -10,47 +10,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <exec.mainClass>com.mycompany.vistaescritorio.VistaEscritorio</exec.mainClass>
     </properties>
-    
-    <build>
-        <plugins>
-            <!-- Plugin para generar el jar normal con el manifest configurado -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>            
-                <version>3.3.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.mycompany.vistaescritorio.VistaMain</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            
-            <!-- Plugin para generar un fat jar (uber jar) que incluya todas las dependencias -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.3.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.mycompany.vistaescritorio.VistaMain</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            
-        </plugins>
-    </build>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
